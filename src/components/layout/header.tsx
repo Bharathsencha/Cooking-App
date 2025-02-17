@@ -30,26 +30,26 @@ export const Header = () => {
   const [notifications, setNotifications] = useState(3);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-md">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-md px-4">
+      <div className="container flex h-20 items-center justify-between mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Logo & Menu */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="md:hidden">
+        <div className="flex items-center gap-6">
+          <Button variant="ghost" size="icon" className="md:hidden hover:bg-muted/50">
             <Menu className="w-6 h-6" />
           </Button>
-          <Link to="/" className="flex items-center gap-2 font-bold text-2xl">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <motion.div initial={{ rotate: -180 }} animate={{ rotate: 0 }} transition={{ duration: 0.5 }}>
               <Utensils className="w-8 h-8 text-primary" />
             </motion.div>
-            <span className="hidden md:inline">FoodieShare</span>
+            <span className="hidden md:inline text-2xl font-bold tracking-tight">FoodieShare</span>
           </Link>
         </div>
 
         {/* Search Bar */}
-        <div className="relative flex-1 max-w-lg hidden md:flex">
+        <div className="relative flex-1 max-w-xl hidden md:flex mx-8">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
-            className="w-full pl-10 pr-4 bg-muted rounded-full"
+            className="w-full pl-10 pr-4 bg-muted/50 rounded-full border border-transparent focus:border-primary/50 transition-colors"
             placeholder="Search recipes, chefs, or ingredients..."
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
@@ -76,33 +76,32 @@ export const Header = () => {
         </div>
 
         {/* Icons & User */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Button
-      variant="ghost"
-      size="icon"
-      className="relative"
-      onClick={() => navigate("/Notifications")} // Navigate to page
-    >
-  
-      <Bell className="w-6 h-6" />
-      {notifications > 0 && (
-        <Badge className="absolute top-1 right-1 text-xs px-1.5 py-0.5 bg-red-500 text-white rounded-full">
-          {notifications}
-        </Badge>
-      )}
-    </Button>
+            variant="ghost"
+            size="icon"
+            className="relative hover:bg-muted/50"
+            onClick={() => navigate("/Notifications")}
+          >
+            <Bell className="w-6 h-6" />
+            {notifications > 0 && (
+              <Badge className="absolute top-1 right-1 text-xs px-1.5 py-0.5 bg-red-500 text-white rounded-full">
+                {notifications}
+              </Badge>
+            )}
+          </Button>
 
           {/* Messages */}
           <Link to="/messages">
-  <Button variant="ghost" size="icon">
-    <MessageCircle className="w-6 h-6" />
-  </Button>
-</Link>
+            <Button variant="ghost" size="icon" className="hover:bg-muted/50">
+              <MessageCircle className="w-6 h-6" />
+            </Button>
+          </Link>
 
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-muted/50">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src="https://via.placeholder.com/40" alt="User" />
                   <AvatarFallback>

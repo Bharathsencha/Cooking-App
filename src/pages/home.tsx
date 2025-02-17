@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { CategorySlider } from '@/components/category-slider';
 import { RecipeCard } from '@/components/recipe-card';
@@ -58,40 +59,61 @@ const demoRecipes: Recipe[] = [
 
 export const Home = () => {
   return (
-    <div className="space-y-8 px-4 md:px-12 py-6 bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen">
-      <motion.h1 
-        className="text-center text-4xl font-extrabold text-white drop-shadow-md"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Discover New Recipes
-      </motion.h1>
-      
-      <CategorySlider />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {demoRecipes.map((recipe) => (
-          <motion.div
-            key={recipe.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.3 }}
-            className="rounded-xl overflow-hidden shadow-lg bg-gray-900/50 backdrop-blur-lg border border-gray-700 hover:shadow-2xl"
-          >
-            <RecipeCard
-              image={recipe.image}
-              title={recipe.title}
-              author={recipe.author.name}
-              likes={recipe.likes}
-              comments={recipe.comments}
-              shares={recipe.shares}
-              onClick={() => {/* Navigate to recipe detail */}}
-            />
-          </motion.div>
-        ))}
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Main container with proper max-width and padding */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header section */}
+        <motion.header 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+            Discover New Recipes
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Explore delicious recipes from talented chefs around the world
+          </p>
+        </motion.header>
+
+        {/* Category slider with proper spacing */}
+        <div className="mb-12">
+          <CategorySlider />
+        </div>
+
+        {/* Recipe grid with responsive layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {demoRecipes.map((recipe, index) => (
+            <motion.div
+              key={recipe.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.5,
+                delay: index * 0.1 
+              }}
+              className="group"
+            >
+              <div className="relative h-full bg-gray-800 rounded-xl overflow-hidden border border-gray-700/50 transition-all duration-300 hover:border-gray-600 hover:shadow-xl hover:shadow-black/20">
+                <RecipeCard
+                  image={recipe.image}
+                  title={recipe.title}
+                  author={recipe.author.name}
+                  likes={recipe.likes}
+                  comments={recipe.comments}
+                  shares={recipe.shares}
+                  onClick={() => {/* Navigate to recipe detail */}}
+                />
+                {/* Overlay gradient for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
+
+export default Home;

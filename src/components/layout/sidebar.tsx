@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Home,
   Compass,
@@ -9,10 +8,12 @@ import {
   Calendar,
   Award,
   Settings,
-  Menu,
-  X
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const navigation = [
   { name: 'Home', icon: Home, href: '/' },
@@ -23,49 +24,99 @@ const navigation = [
   { name: 'Leaderboard', icon: Award, href: '/leaderboard' },
 ];
 
-export const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);
+interface SidebarProps {
+  onToggle?: (expanded: boolean) => void;
+}
+
+export const Sidebar = ({ onToggle }: SidebarProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const location = useLocation();
 
   return (
-    <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] z-50 flex flex-col">
-      {/* Sidebar Toggle Button */}
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className="m-2" 
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </Button>
-      
-      {/* Sidebar Navigation */}
-      <motion.div 
-        initial={{ width: '4rem' }} 
-        animate={{ width: isOpen ? '16rem' : '4rem' }}
-        transition={{ duration: 0.3 }}
-        className="h-full border-r bg-background shadow-md flex flex-col items-start overflow-hidden"
-      >
-        <div className="flex flex-col w-full py-4">
-          {navigation.map((item) => (
-            <Link key={item.name} to={item.href} className="flex items-center gap-4 w-full px-4 py-3 transition-all duration-200 hover:bg-muted rounded-md">
-              <item.icon className="w-6 h-6 text-primary" />
-              <span className={`text-sm font-medium ${isOpen ? 'block' : 'hidden'}`}>{item.name}</span>
+    <motion.div
+      initial={false}
+      animate={{ width: isExpanded ? 280 : 80 }}
+      className="fixed left-0 top-20 h-[calc(100vh-5rem)] border-r bg-background/95 backdrop-blur-md z-30 shadow-sm"
+    >
+      <div className="flex h-full flex-col gap-2 p-2">
+        {navigation.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link key={item.name} to={item.href}>
+              <Button
+                variant={isActive ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start gap-4 relative",
+                  isActive && "bg-secondary"
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      className="overflow-hidden whitespace-nowrap"
+                    >
+                      {item.name}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {!isExpanded && isActive && (
+                  <motion.div
+                    className="absolute left-0 w-1 h-full bg-primary rounded-r-full"
+                    layoutId="activeIndicator"
+                  />
+                )}
+              </Button>
             </Link>
-          ))}
-        </div>
+          );
+        })}
         <div className="flex-1" />
-        <Button 
-          variant="ghost" 
-          className="w-full flex items-center gap-4 p-3 transition-all duration-200 hover:bg-muted rounded-md"
+        <Button
+          variant="ghost"
+          className="justify-start gap-4"
+          onClick={() => {
+            const newExpanded = !isExpanded;
+            setIsExpanded(newExpanded);
+            onToggle?.(newExpanded);
+          }}
         >
-          <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
-  <Settings className="w-6 h-6 text-primary" />
-  <span className={`text-sm font-medium ${isOpen ? "block" : "hidden"}`}>
-    Settings
-  </span>
-</Link>
+          {isExpanded ? (
+            <ChevronLeft className="w-5 h-5" />
+          ) : (
+            <ChevronRight className="w-5 h-5" />
+          )}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                Collapse
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Button>
-      </motion.div>
-    </div>
+        <Button variant="ghost" className="justify-start gap-4">
+          <Settings className="w-5 h-5" />
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                Settings
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </Button>
+      </div>
+    </motion.div>
   );
 };

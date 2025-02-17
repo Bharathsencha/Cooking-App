@@ -34,10 +34,20 @@ export const ChatWindow = ({ recipient, messages: initialMessages, onSendMessage
     if (!newMessage.trim()) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: Date.now(),
       text: newMessage,
-      sender: { id: "user", name: "You" },
+      sender: {
+        id: "user",
+        name: "You",
+        avatar: "",
+        bio: "",
+        followers: 0,
+        following: 0,
+        recipes: 0
+      },
+      receiver: recipient,
       createdAt: new Date().toISOString(),
+      read: false
     };
 
     setMessages((prev) => [...prev, userMessage]);
