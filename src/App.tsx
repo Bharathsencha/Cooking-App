@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
+import { ThemeProvider } from '@/context/theme';
 
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -19,14 +20,17 @@ import { Notifications } from '@/pages/Notifications';
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   return (
-    <Router>
+    <ThemeProvider>
+      <Router>
       <div className="min-h-screen bg-background text-foreground overflow-hidden">
         <Header />
         <Sidebar onToggle={(expanded) => setIsSidebarExpanded(expanded)} />
         <Cursor />
         <div className={`transition-all duration-300 ${isSidebarExpanded ? 'pl-[280px]' : 'pl-[80px]'}`}>
           <main className="container py-2">
-            <Routes>
+        <Routes>
+
+
               <Route path="/" element={<Home />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/reels" element={<Reels />} />
@@ -37,13 +41,15 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/notification" element={<Notifications />} />
-            </Routes>
+              </Routes>
           </main>
         </div>
 
         <CookingAssistant />
       </div>
     </Router>
+      </ThemeProvider>
+
   );
 }
 

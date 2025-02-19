@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Sun, Moon, Shield, Bell, User, LogOut, Trash2 } from "lucide-react";
+import { Switch } from "../components/ui/switch";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { Sun, Moon, Shield, Bell, User, LogOut, Trash2, Monitor } from "lucide-react";
+import { useTheme } from "../context/theme";
+
 
 export const Settings = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
+
   const [username, setUsername] = useState("Foodie123");
   const [bio, setBio] = useState("Love cooking and sharing recipes! 🍳✨");
   const [emailNotifs, setEmailNotifs] = useState(true);
@@ -78,13 +81,42 @@ export const Settings = () => {
       {/* Appearance */}
       <div className="bg-card p-6 rounded-xl shadow-lg">
         <h3 className="text-xl font-semibold flex items-center gap-2">
-          {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+          {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
           Appearance
         </h3>
-        <div className="mt-4 flex justify-between items-center">
-          <span>Dark Mode</span>
-          <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+        <div className="mt-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Sun className="w-4 h-4" />
+              <span>Light</span>
+            </div>
+            <Switch 
+              checked={theme === 'light'}
+              onCheckedChange={(checked) => setTheme(checked ? 'light' : 'dark')}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Moon className="w-4 h-4" />
+              <span>Dark</span>
+            </div>
+            <Switch 
+              checked={theme === 'dark'}
+              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Monitor className="w-4 h-4" />
+              <span>System</span>
+            </div>
+            <Switch 
+              checked={theme === 'system'}
+              onCheckedChange={(checked) => setTheme(checked ? 'system' : 'light')}
+            />
+          </div>
         </div>
+
       </div>
 
       {/* Account Management */}
