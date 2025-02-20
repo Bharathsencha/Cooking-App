@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { auth } from '../../firebase/config';
+
 
 
 import {
@@ -27,7 +31,26 @@ import { Badge } from '@/components/ui/badge';
 export const Header = () => {
   const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState(3);
+
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Error signing in:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-md px-4">
@@ -99,36 +122,44 @@ export const Header = () => {
           </Link>
 
           {/* User Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-muted/50">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="https://via.placeholder.com/40" alt="User" />
-                  <AvatarFallback>
-                    <UserIcon className="w-5 h-5" />
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60">
-            <DropdownMenuItem asChild>
-  <Link to="/profile" className="flex items-center">
-    <UserIcon className="w-5 h-5 mr-2" /> Profile
-  </Link>
-</DropdownMenuItem>
-<DropdownMenuItem asChild>
-  <Link to="/settings" className="flex items-center">
-    <Settings className="w-5 h-5 mr-2" /> Settings
-  </Link>
-</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setNotifications(0)}>
-                <Bell className="w-5 h-5 mr-2" /> Clear Notifications
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <LogOut className="w-5 h-5 mr-2 text-red-500" /> Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-muted/50">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.photoURL || "https://via.placeholder.com/40"} alt="User" />
+                    <AvatarFallback>
+                      {user.displayName?.charAt(0) || <UserIcon className="w-5 h-5" />}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center">
+                    <UserIcon className="w-5 h-5 mr-2" /> Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="flex items-center">
+                    <Settings className="w-5 h-5 mr-2" /> Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setNotifications(0)}>
+                  <Bell className="w-5 h-5 mr-2" /> Clear Notifications
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-5 h-5 mr-2 text-red-500" /> Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button onClick={handleLogin} variant="outline" className="gap-2">
+              <UserIcon className="w-5 h-5" />
+              Login
+            </Button>
+          )}
+
         </div>
       </div>
     </header>

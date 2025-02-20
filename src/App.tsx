@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 import { ThemeProvider } from '@/context/theme';
+import { AuthProvider } from '@/context/AuthContext';
 
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -21,7 +22,9 @@ function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   return (
     <ThemeProvider>
-      <Router>
+      <AuthProvider>
+        <Router>
+
       <div className="min-h-screen bg-background text-foreground overflow-hidden">
         <Header />
         <Sidebar onToggle={(expanded) => setIsSidebarExpanded(expanded)} />
@@ -47,8 +50,10 @@ function App() {
 
         <CookingAssistant />
       </div>
-    </Router>
-      </ThemeProvider>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
+
 
   );
 }

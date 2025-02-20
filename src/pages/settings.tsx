@@ -4,10 +4,11 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Sun, Moon, Shield, Bell, User, LogOut, Trash2, Monitor } from "lucide-react";
 import { useTheme } from "../context/theme";
-
+import { useAuth } from "../context/AuthContext";
 
 export const Settings = () => {
   const { theme, setTheme } = useTheme();
+  const { logout } = useAuth();
 
   const [username, setUsername] = useState("Foodie123");
   const [bio, setBio] = useState("Love cooking and sharing recipes! 🍳✨");
@@ -116,7 +117,6 @@ export const Settings = () => {
             />
           </div>
         </div>
-
       </div>
 
       {/* Account Management */}
@@ -129,7 +129,15 @@ export const Settings = () => {
           <Button variant="destructive" className="w-full">
             Delete Account
           </Button>
-          <Button variant="outline" className="w-full flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="w-full flex items-center gap-2"
+            onClick={() => {
+              if (window.confirm('Are you sure you want to log out?')) {
+                logout();
+              }
+            }}
+          >
             <LogOut className="w-5 h-5" />
             Log Out
           </Button>

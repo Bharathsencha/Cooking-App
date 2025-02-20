@@ -1,29 +1,34 @@
 import { motion } from "framer-motion";
 import { UserPlus, Settings } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+
 
 export const Profile = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Profile Banner */}
       <div className="relative">
-        <img
-          src="https://source.unsplash.com/1600x400/?food,cooking"
-          alt="Banner"
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="absolute -bottom-12 left-6 flex items-center">
-          <motion.img
-            src="https://source.unsplash.com/150x150/?chef,person"
-            alt="Avatar"
-            className="w-24 h-24 rounded-full border-4 border-background shadow-lg"
-            whileHover={{ scale: 1.1 }}
+          <img
+            src="https://source.unsplash.com/1600x400/?food,cooking"
+            alt="Banner"
+            className="w-full h-48 object-cover"
           />
-          <div className="ml-4">
-            <h2 className="text-2xl font-bold text-white">Chef Alex</h2>
-            <p className="text-white/70">@chef_alex</p>
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute -bottom-12 left-6 flex items-center">
+            <motion.img
+              src={user?.photoURL || "https://source.unsplash.com/150x150/?chef,person"}
+              alt="Avatar"
+              className="w-24 h-24 rounded-full border-4 border-background shadow-lg"
+              whileHover={{ scale: 1.1 }}
+            />
+            <div className="ml-4">
+              <h2 className="text-2xl font-bold text-white">{user?.displayName || "Guest User"}</h2>
+              <p className="text-white/70">{user?.email ? `@${user.email.split('@')[0]}` : "@user"}</p>
+            </div>
           </div>
-        </div>
+
       </div>
 
       {/* Profile Stats */}

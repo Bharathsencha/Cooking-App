@@ -1,4 +1,6 @@
 node_modules
-.vscode
-.env.local
+
 .env
+.vscode
+dist
+.env.local
