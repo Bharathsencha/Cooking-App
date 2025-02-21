@@ -1,45 +1,72 @@
 import { motion } from "framer-motion";
 import { UserPlus, Settings } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-
+import { useEffect, useState } from "react";
+import { getFollowers } from "../firebase/fetchData"; // Fetch followers
+import { followUser } from "../firebase/follow"; // Follow function
+import ProfilePicture from "../components/ProfilePicture"; // Import PFP upload component
 
 export const Profile = () => {
   const { user } = useAuth();
+  const [followers, setFollowers] = useState<number>(0);
+  const [following, setFollowing] = useState<number>(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!user) return;
+      const userId = user.uid;
+
+      const followerList = await getFollowers(userId);
+      setFollowers(followerList.length);
+      
+      // TODO: Fetch following count (create `getFollowing` function)
+      // setFollowing(followingList.length);
+    }
+    fetchData();
+  }, [user]);
+
+  const handleFollow = async () => {
+    if (!user) return alert("Login to follow users!");
+    const userId = user.uid;
+    await followUser(userId, userId); // Example: User following themselves for now
+    setIsFollowing(true);
+    setFollowers((prev) => prev + 1);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Profile Banner */}
       <div className="relative">
-          <img
-            src="https://source.unsplash.com/1600x400/?food,cooking"
-            alt="Banner"
-            className="w-full h-48 object-cover"
+        <img
+          src="https://source.unsplash.com/1600x400/?food,cooking"
+          alt="Banner"
+          className="w-full h-48 object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute -bottom-12 left-6 flex items-center">
+          <motion.img
+            src={user?.photoURL || "https://source.unsplash.com/150x150/?chef,person"}
+            alt="Avatar"
+            className="w-24 h-24 rounded-full border-4 border-background shadow-lg"
+            whileHover={{ scale: 1.1 }}
           />
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute -bottom-12 left-6 flex items-center">
-            <motion.img
-              src={user?.photoURL || "https://source.unsplash.com/150x150/?chef,person"}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full border-4 border-background shadow-lg"
-              whileHover={{ scale: 1.1 }}
-            />
-            <div className="ml-4">
-              <h2 className="text-2xl font-bold text-white">{user?.displayName || "Guest User"}</h2>
-              <p className="text-white/70">{user?.email ? `@${user.email.split('@')[0]}` : "@user"}</p>
-            </div>
+          <div className="ml-4">
+            <h2 className="text-2xl font-bold text-white">{user?.displayName || "Guest User"}</h2>
+            <p className="text-white/70">{user?.email ? `@${user.email.split('@')[0]}` : "@user"}</p>
           </div>
-
+        </div>
       </div>
 
       {/* Profile Stats */}
       <div className="mt-16 text-center">
         <div className="flex justify-center gap-8 text-muted-foreground">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">1.2K</h3>
+            <h3 className="text-lg font-semibold text-foreground">{followers}</h3>
             <p>Followers</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-foreground">340</h3>
+            <h3 className="text-lg font-semibold text-foreground">{following}</h3>
             <p>Following</p>
           </div>
           <div>
@@ -48,11 +75,20 @@ export const Profile = () => {
           </div>
         </div>
 
-        <button className="mt-4 px-4 py-2 bg-primary text-white rounded-full flex items-center gap-2 hover:scale-105 transition">
+        {/* Follow Button */}
+        <button
+          className={`mt-4 px-4 py-2 ${
+            isFollowing ? "bg-gray-400" : "bg-primary"
+          } text-white rounded-full flex items-center gap-2 hover:scale-105 transition`}
+          onClick={handleFollow}
+        >
           <UserPlus className="w-5 h-5" />
-          Follow
+          {isFollowing ? "Following" : "Follow"}
         </button>
       </div>
+
+      {/* Profile Picture Upload */}
+      <ProfilePicture />
 
       {/* Profile Tabs */}
       <div className="mt-6 border-b flex justify-center space-x-6 text-muted-foreground">

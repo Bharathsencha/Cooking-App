@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CategorySlider } from '@/components/category-slider';
 import { RecipeCard } from '@/components/recipe-card';
+import UploadVideo from '@/components/UploadVideo'; // 🆕 Import UploadVideo Component
 import type { Recipe } from '@/types';
 
 const demoRecipes: Recipe[] = [
@@ -29,31 +30,6 @@ const demoRecipes: Recipe[] = [
     category: ["Italian", "Pizza"],
     tags: ["dinner", "vegetarian"],
     createdAt: new Date().toISOString()
-  },
-  {
-    id: 2,
-    title: "Avocado Toast with Poached Eggs",
-    author: {
-      id: "2",
-      name: "Sarah Brown",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-      bio: "Healthy breakfast enthusiast",
-      followers: 890,
-      following: 230,
-      recipes: 28
-    },
-    image: "https://images.unsplash.com/photo-1525351484163-7529414344d8",
-    likes: 156,
-    comments: 8,
-    shares: 23,
-    ingredients: ["Bread", "Avocado", "Eggs", "Salt"],
-    instructions: ["Toast bread", "Mash avocado", "Poach eggs"],
-    cookingTime: "15 mins",
-    servings: 2,
-    difficulty: "Easy",
-    category: ["Breakfast", "Healthy"],
-    tags: ["breakfast", "healthy", "vegetarian"],
-    createdAt: new Date().toISOString()
   }
 ];
 
@@ -76,6 +52,11 @@ export const Home = () => {
             Explore delicious recipes from talented chefs around the world
           </p>
         </motion.header>
+
+        {/* Upload Video Button */}
+        <div className="flex justify-center mb-8">
+          <UploadVideo />
+        </div>
 
         {/* Category slider with proper spacing */}
         <div className="mb-12">
