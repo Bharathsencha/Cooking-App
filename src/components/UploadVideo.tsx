@@ -3,6 +3,7 @@ import { uploadVideoToCloudinary } from "../firebase/cloudinary";
 import { saveVideoToFirestore } from "../firebase/videos";
 import { auth } from "../firebase/config";
 
+
 export default function UploadVideo() {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -16,7 +17,14 @@ export default function UploadVideo() {
 
     setUploading(true);
     try {
-      const userId = auth.currentUser?.uid;
+      const { currentUser: user } = auth;
+      const userId = user?.uid;
+      if (!userId) {
+        alert("You must be logged in to upload a video.");
+        setUploading(false);
+        return;
+      }
+
       if (!userId) throw new Error("User not logged in");
 
       // Upload video to Cloudinary
@@ -38,12 +46,16 @@ export default function UploadVideo() {
   return (
     <div className="p-4 bg-card shadow-md rounded-md text-center">
       <h2 className="text-lg font-semibold mb-2">Upload Video</h2>
-      <input
-        type="file"
-        accept="video/*"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-        className="mb-2"
-      />
+      <label htmlFor="video-upload" className="block mb-2">
+        Select Video File:
+        <input
+          id="video-upload"
+          type="file"
+          accept="video/*"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          className="mb-2 ml-2"
+        />
+      </label>
       <input
         type="text"
         placeholder="Enter video title"

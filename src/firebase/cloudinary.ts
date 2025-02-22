@@ -1,10 +1,10 @@
 export async function uploadVideoToCloudinary(file: File) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "video_uploads"); // Replace with your Cloudinary preset
+    formData.append("upload_preset", "foodieshare"); // Replace with your Cloudinary preset
   
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/dqrzsqjaq/video/upload`, // Replace with your Cloud Name
+      `https://api.cloudinary.com/v1_1/dyroiweqo/video/upload`, // Replace with your Cloud Name
       {
         method: "POST",
         body: formData,
