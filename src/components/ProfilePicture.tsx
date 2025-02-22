@@ -15,7 +15,7 @@ export default function ProfilePicture() {
       const userId = auth.currentUser?.uid;
       if (!userId) throw new Error("User not logged in");
 
-      const photoURL = await uploadProfilePicture(userId, file);
+      await uploadProfilePicture(userId, file);
       alert("Profile picture updated!");
     } catch (error) {
       console.error("Upload failed:", error);
@@ -25,7 +25,14 @@ export default function ProfilePicture() {
   return (
     <div className="mt-4">
       <h2 className="text-lg font-semibold">Update Profile Picture</h2>
-      <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+      <label htmlFor="profile-picture" className="block mb-2">Choose a profile picture</label>
+      <input
+        id="profile-picture"
+        type="file"
+        accept="image/*"
+        title="Select a profile picture"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      />
       <button className="mt-2 bg-primary text-white px-4 py-2 rounded" onClick={handleUpload}>
         Upload
       </button>
