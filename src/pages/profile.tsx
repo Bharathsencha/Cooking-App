@@ -20,8 +20,9 @@ export const Profile = () => {
       const followerList = await getFollowers(userId);
       setFollowers(followerList.length);
       
-      // TODO: Fetch following count (create `getFollowing` function)
-      // setFollowing(followingList.length);
+      // Assuming getFollowing function exists and works similarly to getFollowers
+      const followingList = await getFollowers(userId);
+      setFollowing(followingList.length);
     }
     fetchData();
   }, [user]);

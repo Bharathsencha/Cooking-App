@@ -1,8 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { CategorySlider } from '@/components/category-slider';
 import { RecipeCard } from '@/components/recipe-card';
-import UploadVideo from '@/components/UploadVideo'; // 🆕 Import UploadVideo Component
+
 import type { Recipe } from '@/types';
 
 const demoRecipes: Recipe[] = [
@@ -53,10 +52,7 @@ export const Home = () => {
           </p>
         </motion.header>
 
-        {/* Upload Video Button */}
-        <div className="flex justify-center mb-8">
-          <UploadVideo />
-        </div>
+      
 
         {/* Category slider with proper spacing */}
         <div className="mb-12">

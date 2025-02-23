@@ -48,11 +48,13 @@ export interface Comment {
 }
 
 export interface Message {
-  id: number;
+  id: string;
+  sender: string;
+  receiver: string;
   text: string;
-  sender: User;
-  receiver: User;
+  timestamp: string;
   createdAt: string;
+  isUser: boolean;
   read: boolean;
 }
 
