@@ -4,7 +4,8 @@ import { saveVideoToFirestore } from "../firebase/videos";
 import { auth } from "../firebase/config";
 
 
-export default function UploadVideo() {
+export default function UploadVideo({ onClose }: { onClose: () => void }) {
+
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -34,6 +35,8 @@ export default function UploadVideo() {
       await saveVideoToFirestore(userId, videoUrl, title);
 
       alert("Video uploaded successfully!");
+      onClose(); // Call onClose when upload is successful
+
       setFile(null);
       setTitle("");
     } catch (error) {
@@ -63,10 +66,13 @@ export default function UploadVideo() {
         onChange={(e) => setTitle(e.target.value)}
         className="border p-2 rounded w-full mb-2"
       />
+      <button onClick={onClose} className="mt-2 text-blue-500">
+        Cancel
+      </button>
       <button
         onClick={handleUpload}
         disabled={uploading}
-        className="bg-primary text-white px-4 py-2 rounded"
+        className="bg-primary text-white px-4 py-2 rounded ml-2"
       >
         {uploading ? "Uploading..." : "Upload"}
       </button>

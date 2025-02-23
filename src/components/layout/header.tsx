@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-
-
 
 import {
   Utensils,
@@ -17,21 +16,21 @@ import {
   LogOut,
   Settings,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+} from '../../components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import { Badge } from '../../components/ui/badge';
 
 export const Header = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { user } = useAuth();
   const [notifications, setNotifications] = useState(3);
 
   const handleLogin = async () => {
@@ -50,7 +49,6 @@ export const Header = () => {
       console.error('Error signing out:', error);
     }
   };
-
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-md px-4">
@@ -99,6 +97,17 @@ export const Header = () => {
         </div>
 
         {/* Icons & User */}
+        <Link to="/UploadVideoPage">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-muted/50"
+          >
+            <span className="text-xl">+</span>
+          </Button>
+        </Link>
+
+
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -159,7 +168,6 @@ export const Header = () => {
               Login
             </Button>
           )}
-
         </div>
       </div>
     </header>

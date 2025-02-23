@@ -34,18 +34,12 @@ export const ChatWindow = ({ recipient, messages: initialMessages, onSendMessage
     if (!newMessage.trim()) return;
 
     const userMessage: Message = {
-      id: Date.now(),
+      id: Date.now().toString(),
       text: newMessage,
-      sender: {
-        id: "user",
-        name: "You",
-        avatar: "",
-        bio: "",
-        followers: 0,
-        following: 0,
-        recipes: 0
-      },
-      receiver: recipient,
+      sender: "user",
+      receiver: recipient.id,
+      timestamp: new Date().toISOString(),
+      isUser: true,
       createdAt: new Date().toISOString(),
       read: false
     };
@@ -55,7 +49,7 @@ export const ChatWindow = ({ recipient, messages: initialMessages, onSendMessage
     setNewMessage("");
   };
 
-  const isUserMessage = (message: Message) => message.sender.id === "user";
+  const isUserMessage = (message: Message) => message.sender === "user";
 
   return (
     <div className="flex flex-col h-96 w-full max-w-lg bg-white shadow-lg rounded-lg border">

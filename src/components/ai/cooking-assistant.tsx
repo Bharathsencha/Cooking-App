@@ -4,14 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fetchAIResponse } from "@/lib/gemini";
 import { ChatWindow } from "@/components/chat/chat-window";
-
-interface Message {
-  id: string;
-  sender: string;
-  text: string;
-  timestamp: string;
-  isUser: boolean;
-}
+import type { Message } from "@/types"; // Import the correct Message type
 
 export const CookingAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,30 +13,35 @@ export const CookingAssistant = () => {
   const handleVoiceCommand = async (command: string) => {
     if (!command.trim()) return;
 
-    // Create user message
+    // Create user message with all required properties
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "You",
+      receiver: "AI Cooking Assistant", // Added missing property
       text: command,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      createdAt: new Date().toISOString(), // Added missing property
       isUser: true,
+      read: true, // Added missing property
     };
 
-    // Update state with user message first
     setMessages((prev) => [...prev, userMessage]);
 
     try {
       console.log("Sending command to AI:", command);
       const aiResponse = await fetchAIResponse(command);
-      console.log("Received AI response:", aiResponse); // ✅ Debugging line
+      console.log("Received AI response:", aiResponse);
 
       if (aiResponse) {
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
           sender: "AI Cooking Assistant",
+          receiver: "You", // Added missing property
           text: aiResponse,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          createdAt: new Date().toISOString(), // Added missing property
           isUser: false,
+          read: false, // Added missing property
         };
 
         setMessages((prev) => [...prev, aiMessage]);
@@ -55,7 +53,6 @@ export const CookingAssistant = () => {
 
   return (
     <div className="fixed bottom-4 right-4 flex flex-col items-end">
-      {/* Floating AI Assistant Button */}
       <Button
         onClick={() => setIsChatOpen(!isChatOpen)}
         className="bg-red-500 text-white p-3 rounded-full shadow-lg flex items-center justify-center"
@@ -63,7 +60,6 @@ export const CookingAssistant = () => {
         <Bot className="w-6 h-6" />
       </Button>
 
-      {/* Chat Window */}
       {isChatOpen && (
         <Card className="w-80 mt-2 p-3 shadow-lg rounded-lg max-h-96 overflow-y-auto">
           <ChatWindow
@@ -76,7 +72,7 @@ export const CookingAssistant = () => {
               following: 0,
               recipes: 0,
             }}
-            messages={messages} // Ensure messages are correctly formatted
+            messages={messages}
             onSendMessage={handleVoiceCommand}
             onClose={() => setIsChatOpen(false)}
           />
