@@ -1,11 +1,12 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AuthPage from './pages/AuthPage'; // Importing AuthPage
 import { useState } from 'react';
 import { ThemeProvider } from "@/context/theme";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import UploadVideoPage from "@/pages/UploadVideoPage";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
-import { Cursor } from '@/components/cursor';
+import { Cursor } from "@/components/cursor";
 import { CookingAssistant } from "@/components/ai/cooking-assistant";
 import { Home } from "@/pages/home";
 import { Explore } from "@/pages/explore";
@@ -17,39 +18,25 @@ import { RecipeDetail } from "@/pages/recipe-detail";
 import { Profile } from "@/pages/profile";
 import { Settings } from "@/pages/settings";
 import { Notifications } from "@/pages/Notifications";
-import AuthPage from "@/pages/AuthPage";
 
 function AppContent() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  // Show AuthPage for the root path "/"
-  if (window.location.pathname === "/") {
-    return <AuthPage />;
-  }
-
-  // If no user and trying to access other routes, redirect to auth page
-  if (!user) {
-    return <Navigate to="/" />;
-  }
-
-  // Authenticated layout with routes
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <Header />
       <Sidebar onToggle={(expanded) => setIsSidebarExpanded(expanded)} />
       <Cursor />
       <div className={`transition-all duration-300 ${isSidebarExpanded ? 'pl-[280px]' : 'pl-[80px]'}`}>
-      <main className="container py-2">
+        <main className="container py-2">
           <Routes>
-            {/* Remove the root path route that was redirecting to /home */}
-            <Route path="/" element={<AuthPage />} />
+            <Route path="/" element={<Home />} />
             <Route path="/UploadVideoPage" element={<UploadVideoPage />} />
-
             <Route path="/home" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/reels" element={<Reels />} />
@@ -60,6 +47,7 @@ function AppContent() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/notification" element={<Notifications />} />
+            <Route path="/AuthPage" element={<AuthPage />} />
           </Routes>
         </main>
       </div>
@@ -74,7 +62,6 @@ function App() {
       <ThemeProvider>
         <Router>
           <AppContent />
-
         </Router>
       </ThemeProvider>
     </AuthProvider>
