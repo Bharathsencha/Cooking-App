@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+
 import { auth } from '../../firebase/config';
 
 import {
@@ -33,14 +34,7 @@ export const Header = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [notifications, setNotifications] = useState(3);
 
-  const handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Error signing in:', error);
-    }
-  };
+
 
   const handleLogout = async () => {
     try {
@@ -163,10 +157,11 @@ export const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={handleLogin} variant="outline" className="gap-2">
-              <UserIcon className="w-5 h-5" />
-              Login
+          <Link to="/AuthPage">
+            <Button variant="outline" className="gap-2">
+              Login/Signup
             </Button>
+          </Link>
           )}
         </div>
       </div>
