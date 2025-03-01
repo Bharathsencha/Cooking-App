@@ -1,3 +1,12 @@
+   ```bash
+npm install browser-image-compression
+npm install @ffmpeg/ffmpeg @ffmpeg/util
+```
+or   
+```bash      
+    npm install @ffmpeg/util
+
+```
 Go to https://cloudinary.com/ and make an account 
 the  do : npm install cloudinary
 Go to Dashboard → Note these values:
