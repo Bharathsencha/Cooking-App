@@ -10,6 +10,18 @@ import { uploadVideoToCloudinary } from "../firebase/cloudinary";
 import { saveVideoToFirestore } from "../firebase/videos";
 import { auth } from "../firebase/config";
 
+import imageCompression from "browser-image-compression";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
+
+const ffmpeg = new FFmpeg();
+
+const loadFFmpeg = async () => {
+  if (!ffmpeg.loaded) {
+    await ffmpeg.load();
+  }
+};
+
 export default function UploadVideo({ onClose }: { onClose: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -35,6 +47,45 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
     }
   };
 
+  const compressVideo = async (file: File): Promise<File> => {
+    await loadFFmpeg();
+
+    const inputName = "input.mp4";
+    const outputName = "output.mp4";
+
+    ffmpeg.writeFile(inputName, await fetchFile(file));
+
+    await ffmpeg.exec([
+      "-i", inputName,
+      "-vf", "scale=-1:720",  // Rescale to max 720p
+      "-c:v", "libx264", "-crf", "28",  // Lower quality slightly to save space
+      "-preset", "fast",
+      outputName
+    ]);
+
+    const data = await ffmpeg.readFile(outputName);
+    return new File([data], "compressed.mp4", { type: "video/mp4" });
+  };
+
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1080,
+      useWebWorker: true,
+    };
+
+    let compressedFile = await imageCompression(file, options);
+
+    if (file.type === "image/png") {
+      compressedFile = await imageCompression.getFilefromDataUrl(
+        await imageCompression.getDataUrlFromFile(compressedFile),
+        "image/jpeg"
+      );
+    }
+
+    return compressedFile;
+  };
+
   const handleUpload = async () => {
     if (!file || !title) {
       setError("Please select a file and enter a title!");
@@ -43,6 +94,7 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
 
     setError(null);
     setUploading(true);
+
     try {
       const { currentUser: user } = auth;
       const userId = user?.uid;
@@ -52,14 +104,19 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
         return;
       }
 
-      // Upload video to Cloudinary
-      const videoUrl = await uploadVideoToCloudinary(file);
+      let processedFile = file;
 
-      // Save video details in Firestore
+      if (file.type.startsWith("video/")) {
+        processedFile = await compressVideo(file);
+      } else if (file.type.startsWith("image/")) {
+        processedFile = await compressImage(file);
+      }
+
+      const videoUrl = await uploadVideoToCloudinary(processedFile);
       await saveVideoToFirestore(userId, videoUrl, title);
 
-      alert("Video uploaded successfully!");
-      onClose(); // Call onClose when upload is successful
+      alert("Upload successful!");
+      onClose();
 
       setFile(null);
       setTitle("");
@@ -67,14 +124,15 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
       console.error("Upload failed:", error);
       setError("Upload failed. Please try again.");
     }
+
     setUploading(false);
   };
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <Card className="max-w-2xl mx-auto shadow-xl border-0">
@@ -92,7 +150,7 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
                   <p>{error}</p>
                 </div>
               )}
-              
+
               <div>
                 <Label htmlFor="file-upload" className="text-lg font-medium block mb-3">
                   Upload Video/Image
@@ -102,10 +160,10 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-lg p-12 mb-6 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center ${
-                    isDragging 
-                      ? "border-blue-500 bg-blue-50" 
-                      : file 
-                        ? "border-green-400 bg-green-50" 
+                    isDragging
+                      ? "border-blue-500 bg-blue-50"
+                      : file
+                        ? "border-green-400 bg-green-50"
                         : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
                   }`}
                 >
@@ -127,7 +185,7 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
                     </>
                   )}
                 </div>
-                
+
                 <div className="flex flex-col gap-6">
                   <div>
                     <Input
@@ -137,7 +195,7 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
                       className="hidden"
                     />
-                    
+
                     <div className="flex justify-center mb-6">
                       <Label
                         htmlFor="file-upload"
@@ -148,7 +206,7 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
                       </Label>
                     </div>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="video-title" className="text-lg font-medium block mb-2">
                       Post Title
@@ -163,25 +221,12 @@ export default function UploadVideo({ onClose }: { onClose: () => void }) {
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end space-x-3 mt-8">
-                  <Button 
-                    onClick={onClose}
-                    variant="outline" 
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200 flex items-center"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Cancel
+                  <Button onClick={onClose} variant="outline">
+                    <X className="h-4 w-4 mr-2" /> Cancel
                   </Button>
-                  <Button
-                    onClick={handleUpload}
-                    disabled={uploading || !file || !title}
-                    className={`px-6 py-2 rounded-md text-white flex items-center ${
-                      uploading || !file || !title
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                    }`}
-                  >
+                  <Button onClick={handleUpload} disabled={uploading || !file || !title}>
                     <Upload className="h-4 w-4 mr-2" />
                     {uploading ? "Uploading..." : "Upload"}
                   </Button>
