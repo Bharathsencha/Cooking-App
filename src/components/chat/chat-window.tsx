@@ -1,134 +1,172 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Image as ImageIcon, Smile, X } from "lucide-react";
+import { 
+  Send, 
+  Image as ImageIcon, 
+  Smile, 
+  X, 
+  Bot
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Message, User } from "@/types";
 
-interface ChatWindowProps {
+interface FullScreenChatModalProps {
   recipient: User;
   messages: Message[];
-  onSendMessage: (text: string) => Promise<void>;
-  onClose: () => void;
+  onSendMessage: (message: string) => Promise<void>;
 }
 
-export const ChatWindow = ({ recipient, messages: initialMessages, onSendMessage, onClose }: ChatWindowProps) => {
+export const FullScreenChatModal = ({ 
+  recipient, 
+  messages: initialMessages, 
+  onSendMessage 
+}: FullScreenChatModalProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Update messages when initialMessages change
   useEffect(() => {
     setMessages(initialMessages);
   }, [initialMessages]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = async () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: newMessage,
-      sender: "user",
-      receiver: recipient.id,
-      timestamp: new Date().toISOString(),
-      isUser: true,
-      createdAt: new Date().toISOString(),
-      read: false
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    // Send message via parent component's handler
     await onSendMessage(newMessage);
+    
+    // Clear input
     setNewMessage("");
   };
 
-  const isUserMessage = (message: Message) => message.sender === "user";
-
   return (
-    <div className="flex flex-col h-96 w-full max-w-lg bg-white shadow-lg rounded-lg border">
-      <div className="p-4 border-b flex items-center justify-between bg-gray-100">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src={recipient.avatar} />
-            <AvatarFallback>{recipient.name[0]}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-semibold">{recipient.name}</h3>
-            <p className="text-sm text-gray-500">Active now</p>
-          </div>
-        </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-5 h-5 text-gray-600" />
+    <>
+      {/* Floating Chat Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => setIsChatOpen(true)}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform"
+        >
+          <Bot className="w-7 h-7" />
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
-          <AnimatePresence>
-            {messages.map((message) => {
-              const formattedTime = new Date().toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-
-              return (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="w-full flex"
+      {/* Full Screen Modal */}
+      <AnimatePresence>
+        {isChatOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center"
+            onClick={() => setIsChatOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-2xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Chat Header */}
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-5 flex items-center justify-between rounded-t-2xl">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12 border-2 border-white">
+                    <AvatarImage src={recipient.avatar} />
+                    <AvatarFallback>{recipient.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-bold text-lg">{recipient.name}</h3>
+                    <p className="text-sm text-blue-100">Online</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setIsChatOpen(false)} 
+                  className="text-white hover:bg-white/20"
                 >
-                  <div
+                  <X className="w-6 h-6" />
+                </Button>
+              </div>
+
+              {/* Messages Container */}
+              <div className="flex-1 bg-gray-50 p-6 overflow-y-auto space-y-4">
+                {messages.map((message) => (
+                  <div 
+                    key={message.id}
                     className={cn(
-                      "rounded-lg p-3 max-w-[70%] w-fit",
-                      isUserMessage(message)
-                        ? "bg-blue-600 text-white" // ✅ User messages blue
-                        : "bg-gray-100 text-gray-900" // ✅ AI messages gray
+                      "flex",
+                      message.isUser ? "justify-end" : "justify-start"
                     )}
                   >
-                    <p className="text-sm">{message.text}</p>
-                    <span className="block text-xs opacity-60 mt-1">
-                      {formattedTime}
-                    </span>
+                    <div 
+                      className={cn(
+                        "rounded-2xl px-4 py-3 max-w-[70%]",
+                        message.isUser 
+                          ? "bg-blue-600 text-white rounded-br-none" // ✅ Change text color here if needed
+                          : "bg-gray-200 text-gray-900 rounded-bl-none"
+                      )}
+                    >
+                      <p className="text-sm">{message.text}</p>
+                      <span 
+                        className={cn(
+                          "text-xs block mt-1",
+                          message.isUser ? "text-blue-100" : "text-gray-500"
+                        )}
+                      >
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
                   </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
 
-      <div className="p-4 border-t bg-gray-50">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <ImageIcon className="w-5 h-5 text-gray-500" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Smile className="w-5 h-5 text-gray-500" />
-          </Button>
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type a message..."
-            className="flex-1"
-          />
-          <Button onClick={handleSend} disabled={!newMessage.trim()}>
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
+              {/* Message Input */}
+              <div className="bg-white p-5 border-t">
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" className="text-gray-500">
+                    <ImageIcon className="w-6 h-6" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="text-gray-500">
+                    <Smile className="w-6 h-6" />
+                  </Button>
+                  <Input
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                    placeholder="Type your cooking question..."
+                    className="flex-1 rounded-full px-4 py-2 bg-gray-50 border-2 border-transparent text-gray-900 focus:border-blue-500 focus:bg-white"
+                  />
+                  <Button 
+                    onClick={handleSendMessage} 
+                    disabled={!newMessage.trim()}
+                    className="bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    <Send className="w-6 h-6" />
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
-export default ChatWindow;
+export default FullScreenChatModal;
