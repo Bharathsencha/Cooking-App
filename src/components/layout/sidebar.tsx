@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
   Compass,
@@ -31,6 +31,7 @@ interface SidebarProps {
 export const Sidebar = ({ onToggle }: SidebarProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -101,21 +102,24 @@ export const Sidebar = ({ onToggle }: SidebarProps) => {
             )}
           </AnimatePresence>
         </Button>
-        <Button variant="ghost" className="justify-start gap-4">
-          <Settings className="w-5 h-5" />
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                className="overflow-hidden whitespace-nowrap"
-              >
-                Settings
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Button>
+        <Button 
+      variant="ghost" className="justify-start gap-4" 
+      onClick={() => navigate("/settings")} // Navigate on click
+    >
+      <Settings className="w-5 h-5" />
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.span
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "auto" }}
+            exit={{ opacity: 0, width: 0 }}
+            className="overflow-hidden whitespace-nowrap"
+          >
+            Settings
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </Button>
       </div>
     </motion.div>
   );

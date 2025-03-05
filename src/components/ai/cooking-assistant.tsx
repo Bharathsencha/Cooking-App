@@ -1,30 +1,39 @@
 import { useState } from "react";
-import { Bot } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+
 import { fetchAIResponse } from "@/lib/gemini";
-import { ChatWindow } from "@/components/chat/chat-window";
-import type { Message } from "@/types"; // Import the correct Message type
+import type { Message, User } from "@/types";
+import FullScreenChatModal from "@/components/chat/chat-window";
 
 export const CookingAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  
+
+  const recipient: User = {
+    name: "AI Cooking Assistant",
+    avatar: "/path-to-avatar.jpg",
+    id: "1",
+    bio: "I'm your AI cooking assistant",
+    followers: 0,
+    following: 0,
+    recipes: 0,
+  };
 
   const handleVoiceCommand = async (command: string) => {
     if (!command.trim()) return;
 
-    // Create user message with all required properties
+    // Create user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      sender: "You",
-      receiver: "AI Cooking Assistant", // Added missing property
+      sender: "user",
+      receiver: recipient.id,
       text: command,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      createdAt: new Date().toISOString(), // Added missing property
+      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       isUser: true,
-      read: true, // Added missing property
+      read: false
     };
 
+    // Add user message
     setMessages((prev) => [...prev, userMessage]);
 
     try {
@@ -35,49 +44,43 @@ export const CookingAssistant = () => {
       if (aiResponse) {
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
-          sender: "AI Cooking Assistant",
-          receiver: "You", // Added missing property
+          sender: "ai",
+          receiver: "user",
           text: aiResponse,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          createdAt: new Date().toISOString(), // Added missing property
+          timestamp: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
           isUser: false,
-          read: false, // Added missing property
+          read: false
         };
 
         setMessages((prev) => [...prev, aiMessage]);
       }
     } catch (error) {
       console.error("Error processing command:", error);
+      
+      // Optional: Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        sender: "ai",
+        receiver: "user",
+        text: "Sorry, I couldn't process your request. Please try again.",
+        timestamp: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        isUser: false,
+        read: false
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
     }
   };
 
   return (
-    <div className="fixed bottom-4 right-4 flex flex-col items-end">
-      <Button
-        onClick={() => setIsChatOpen(!isChatOpen)}
-        className="bg-red-500 text-white p-3 rounded-full shadow-lg flex items-center justify-center"
-      >
-        <Bot className="w-6 h-6" />
-      </Button>
-
-      {isChatOpen && (
-        <Card className="w-80 mt-2 p-3 shadow-lg rounded-lg max-h-96 overflow-y-auto">
-          <ChatWindow
-            recipient={{
-              name: "AI Cooking Assistant",
-              avatar: "/path-to-avatar.jpg",
-              id: "1",
-              bio: "I'm your AI cooking assistant",
-              followers: 0,
-              following: 0,
-              recipes: 0,
-            }}
-            messages={messages}
-            onSendMessage={handleVoiceCommand}
-            onClose={() => setIsChatOpen(false)}
-          />
-        </Card>
-      )}
-    </div>
+    <FullScreenChatModal
+      recipient={recipient}
+      messages={messages}
+      onSendMessage={handleVoiceCommand}
+    />
   );
 };
+
+export default CookingAssistant;
