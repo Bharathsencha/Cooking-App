@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import { getFollowers } from "../firebase/fetchData"; // Fetch followers
 import { followUser } from "../firebase/follow"; // Follow function
-import ProfilePicture from "../components/ProfilePicture"; // Import PFP upload component
+
 
 export const Profile = () => {
   const { user } = useAuth();
@@ -88,8 +88,7 @@ export const Profile = () => {
         </button>
       </div>
 
-      {/* Profile Picture Upload */}
-      <ProfilePicture />
+
 
       {/* Profile Tabs */}
       <div className="mt-6 border-b flex justify-center space-x-6 text-muted-foreground">

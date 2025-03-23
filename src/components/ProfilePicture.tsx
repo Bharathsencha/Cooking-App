@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { uploadProfilePicture } from "../firebase/profile";
+import { uploadProfilePicture } from "../firebase/profile"; // This will remain unchanged
+
+
 import { auth } from "../firebase/config";
 
 export default function ProfilePicture() {
@@ -15,7 +17,10 @@ export default function ProfilePicture() {
       const userId = auth.currentUser?.uid;
       if (!userId) throw new Error("User not logged in");
 
-      await uploadProfilePicture(userId, file);
+      await uploadProfilePicture(userId, file); // Restore original upload logic
+
+
+
       alert("Profile picture updated!");
     } catch (error) {
       console.error("Upload failed:", error);
