@@ -114,7 +114,7 @@ export const FullScreenChatModal = ({
                       className={cn(
                         "rounded-2xl px-4 py-3 max-w-[70%]",
                         message.isUser 
-                          ? "bg-blue-600 text-white rounded-br-none" // ✅ Change text color here if needed
+                          ? "bg-blue-600 text-white rounded-br-none" 
                           : "bg-gray-200 text-gray-900 rounded-bl-none"
                       )}
                     >

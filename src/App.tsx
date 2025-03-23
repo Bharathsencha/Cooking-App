@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// Removed future flags as they are not available
+
+
 import AuthPage from './pages/AuthPage'; // Importing AuthPage
 import { useState } from 'react';
 import { ThemeProvider } from "@/context/theme";
@@ -62,6 +65,9 @@ function App() {
       <ThemeProvider>
         <Router>
           <AppContent />
+          {/* Removed future flags as they are not available */}
+
+
         </Router>
       </ThemeProvider>
     </AuthProvider>

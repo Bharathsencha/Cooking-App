@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Flame, 
@@ -71,7 +71,7 @@ const cookoffChallenges = [
 const demoRecipes: Recipe[] = [
   {
     id: 1,
-    title: "Quantum Flavor Fusion Pizza",
+    title: "Pizza",
     author: { name: "Culinary Innovator" },
     likes: 456,
     comments: 34,
@@ -85,7 +85,7 @@ const demoRecipes: Recipe[] = [
   },
   {
     id: 2,
-    title: "Emotional Comfort Risotto",
+    title: "Risotto",
     author: { name: "Mood Food Alchemist" },
     likes: 612,
     comments: 52,
