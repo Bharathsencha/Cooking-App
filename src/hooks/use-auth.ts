@@ -1,75 +1,127 @@
-import { LoginData, RegisterData } from "@/types/auth";
-import { User, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase/config";
-import { useState, useEffect } from "react";
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-export interface MutationHandler<T> {
-    mutate: (data: T) => Promise<void>;
-    isLoading: boolean;
-    error: Error | null;
-}
+// Custom hook to handle authentication with error messages
+export const useAuthWithErrors = () => {
+  const auth = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-export interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  loginMutation: MutationHandler<LoginData>;
-  registerMutation: MutationHandler<RegisterData>;
-}
+  const clearError = () => setErrorMessage(null);
 
-export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loginError, setLoginError] = useState<Error | null>(null);
-  const [registerError, setRegisterError] = useState<Error | null>(null);
-  const [loading, setLoading] = useState(false);
+  const loginWithEmail = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
+      await auth.loginWithEmail(email, password);
+      return true;
+    } catch (error) {
+      if (typeof error === 'object' && error !== null) {
+        const err = error as {
+          response?: { data?: { message?: string }, status?: number },
+          request?: unknown,
+          message?: string
+        };
 
-  useEffect(() => {
-    return auth.onAuthStateChanged((user) => {
-      setUser(user);
-    });
-  }, []);
-
-  const loginMutation: MutationHandler<LoginData> = { 
-    mutate: async (data: LoginData) => {
-      console.log("Attempting login..."); // Debugging log
-      setLoading(true);
-      setLoginError(null);
-      try {
-        await signInWithEmailAndPassword(auth, data.username, data.password);
-      } catch (error) {
-      setLoginError(error as Error);
-      console.error("Login error:", error); // Log the error for debugging
-
-      } finally {
-        setLoading(false);
+        if (err.response) {
+          if (err.response.data?.message === 'You might be new user.. register first.') {
+            setErrorMessage('You might be new user.. register first.');
+          } else {
+            setErrorMessage(err.response.data?.message || 'Invalid email or password');
+          }
+        } else if (err.request) {
+          setErrorMessage('Network error. Please check your connection and try again.');
+        } else {
+          setErrorMessage(err.message || 'Login failed. Please try again.');
+        }
+      } else {
+        setErrorMessage('An unexpected error occurred.');
       }
-    },
-    isLoading: loading,
-    error: loginError,
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const registerMutation: MutationHandler<RegisterData> = { 
-  
-    mutate: async (data: RegisterData) => {
-      console.log("Attempting registration..."); // Debugging log
-      setRegisterError(null);
-      try {
-        await createUserWithEmailAndPassword(auth, data.username, data.password);
-      } catch (error) {
-      setRegisterError(error as Error);
-      console.error("Registration error:", error); // Log the error for debugging
+  const register = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
+      await auth.register(email, password);
+      return true;
+    } catch (error) {
+      if (typeof error === 'object' && error !== null) {
+        const err = error as {
+          response?: { data?: { message?: string }, status?: number },
+          request?: unknown,
+          message?: string
+        };
 
-      } finally {
-        setLoading(false);
+        if (err.response) {
+          if (err.response.status === 409) {
+            setErrorMessage('This email is already registered. Please try logging in instead.');
+          } else {
+            setErrorMessage(err.response.data?.message || 'Registration failed');
+          }
+        } else if (err.request) {
+          setErrorMessage('Network error. Please check your connection and try again.');
+        } else {
+          setErrorMessage(err.message || 'Registration failed. Please try again.');
+        }
+      } else {
+        setErrorMessage('An unexpected error occurred.');
       }
-    },
-    isLoading: loading,
-    error: registerError,
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
+      await auth.loginWithGoogle();
+      return true;
+    } catch (error) {
+      if (typeof error === 'object' && error !== null) {
+        const err = error as { message?: string };
+        setErrorMessage(err.message || 'Google login failed. Please try again.');
+      } else {
+        setErrorMessage('Google login failed. Please try again.');
+      }
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      await auth.logout();
+      return true;
+    } catch (error) {
+      if (typeof error === 'object' && error !== null) {
+        const err = error as { message?: string };
+        setErrorMessage(err.message || 'Logout failed');
+      } else {
+        setErrorMessage('Logout failed');
+      }
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {
-    user,
-    loading,
-    loginMutation,
-    registerMutation,
-  } as AuthContextType;
+    user: auth.user,
+    loading: isLoading || auth.loading,
+    errorMessage,
+    clearError,
+    loginWithEmail,
+    loginWithGoogle,
+    register,
+    logout
+  };
 };

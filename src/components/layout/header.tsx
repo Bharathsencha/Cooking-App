@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase/config';
 
 import {
   Utensils,
@@ -28,13 +26,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
 import { Badge } from '../../components/ui/badge';
 
 export const Header = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState(3);
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await logout();
+      navigate('/AuthPage');
     } catch (error) {
       console.error('Error signing out:', error);
     }

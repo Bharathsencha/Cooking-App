@@ -21,6 +21,7 @@ import { RecipeDetail } from "@/pages/recipe-detail";
 import { Profile } from "@/pages/profile";
 import { Settings } from "@/pages/settings";
 import { Notifications } from "@/pages/Notifications";
+import ToastContainer from '@/components/ToastContainer';
 
 function AppContent() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -64,6 +65,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider>
         <Router>
+        <ToastContainer />
           <AppContent />
           {/* Removed future flags as they are not available */}
 
